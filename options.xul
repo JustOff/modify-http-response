@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<setting type="bool" pref="extensions.modhresponse.enabled" title="Enable" />
+	<setting type="string" pref="extensions.modhresponse.filter" title="Filters">
+	[["host",["path",["search","resplace"]]]]
+	</setting>
+</vbox>
