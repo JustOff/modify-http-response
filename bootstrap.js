@@ -3,9 +3,9 @@
 var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
-var enabled, filter, fArray, branch = "extensions.modhresponse.";
+var enabled, fArray, branch = "extensions.modhresponse.";
 
-var ho = {
+var httpObserver = {
 	observe: function(subject, topic, data) {
 	  try {
 		if (topic == 'http-on-examine-response' || topic == 'http-on-examine-cached-response') {
@@ -13,14 +13,14 @@ var ho = {
 			for (var i=0; i < fArray.length; i++) {
 				if (fArray[i][0] == subject.URI.host) {
 					for (var j=1; j < fArray[i].length; j++) {
-						if (fArray[i][j][0] == subject.URI.path) {
+						if (typeof fArray[i][j][0] == "string" && fArray[i][j][0] == subject.URI.path || fArray[i][j][0].test(subject.URI.path)) {
 							if (typeof subject.setNewListener !== "function") {
 								subject.QueryInterface(Ci.nsITraceableChannel);
 							}
-							var nl = new l();
-							nl.h = i;
-							nl.p = j;
-							nl.ol = subject.setNewListener(nl);
+							var newListener = new TracingListener();
+							newListener.host = i;
+							newListener.path = j;
+							newListener.originalListener = subject.setNewListener(newListener);
 						}
 					}
 				}
@@ -28,18 +28,18 @@ var ho = {
 		}
 	  } catch (e) {}
 	},
-	QueryInterface: function (aIID) {
+	QueryInterface: function(aIID) {
 		if (aIID.equals(Ci.nsIObserver) || aIID.equals(Ci.nsISupports)) {
 			return this;
 		} else {
 			throw Cr.NS_NOINTERFACE;
 		}
 	},
-	r: function() {
+	register: function() {
 		Services.obs.addObserver(this, "http-on-examine-cached-response", false);
 		Services.obs.addObserver(this, "http-on-examine-response", false);
 	},
-	u: function() {
+	unregister: function() {
 		Services.obs.removeObserver(this, "http-on-examine-cached-response");
 		Services.obs.removeObserver(this, "http-on-examine-response");
 	}
@@ -49,41 +49,67 @@ function CCIN(cName, ifaceName) {
    	return Cc[cName].createInstance(Ci[ifaceName]);
 }
 
-function r(s) {
-	var r, m = s.match(/\/(.*)\/(.+)/);
-	if (m) {
-		r = new RegExp(m[1],m[2]);
+function parseReg(src) {
+	var match = src.match(/^\/(.+)\/([igm]*)$/);
+	if (match) {
+		return new RegExp(match[1],match[2]);
 	} else {
-		r = s;
+		return src;
 	}
-   	return r;
 }
 
-function l() {
-	this.d = [];
+function updateFilter(report) {
+	var filter = Services.prefs.getBranch(branch).getCharPref("filter");
+	try {
+		fArray = JSON.parse(filter);
+		for (var i=0; i < fArray.length; i++) {
+			for (var j=1; j < fArray[i].length; j++) {
+				fArray[i][j][0] = parseReg(fArray[i][j][0]);
+				for (var k=0; k < fArray[i][j][1].length; k++) {
+					if (typeof fArray[i][j][1][k+1] === "undefined") {
+						throw "No replace for \"" + fArray[i][j][1][k] + "\"";
+					} else {
+						fArray[i][j][1][k] = parseReg(fArray[i][j][1][k]);
+						k++;
+					}
+				}
+			}
+		}
+		return true;
+	} catch (e) {
+		Cu.reportError(e);
+		if (report) {
+			Services.prompt.alert(null, "Filter error!", e);
+		}
+		return false;
+	}
+}
+
+function TracingListener() {
+	this.receivedData = [];
 }
 	
-l.prototype = {
+TracingListener.prototype = {
 	onDataAvailable: function(request, context, inputStream, offset, count) {
 		var binaryInputStream = CCIN("@mozilla.org/binaryinputstream;1","nsIBinaryInputStream");
 		binaryInputStream.setInputStream(inputStream);
 		var data = binaryInputStream.readBytes(count);
-		this.d.push(data);
+		this.receivedData.push(data);
 	},
 	onStartRequest: function(request, context) {
 		try {
-			this.ol.onStartRequest(request, context);
+			this.originalListener.onStartRequest(request, context);
 		} catch (err) {
 			request.cancel(err.result);
 		}
 	},
 	onStopRequest: function(request, context, statusCode) {
-		var data = this.d.join("");
+		var data = this.receivedData.join("");
 
 		try {
-			var re = fArray[this.h][this.p][1];
+			var re = fArray[this.host][this.path][1];
 			for (var i=0; i < re.length; i++) {
-				data = data.replace(r(re[i]),re[++i]);
+				data = data.replace(re[i],re[++i]);
 			}
 		} catch (e) {}
 		
@@ -94,14 +120,14 @@ l.prototype = {
 		os.close();
 
 		try {
-			this.ol.onDataAvailable(request, context, storageStream.newInputStream(0), 0, data.length);
+			this.originalListener.onDataAvailable(request, context, storageStream.newInputStream(0), 0, data.length);
 		} catch (e) {}
 
 		try {
-			this.ol.onStopRequest(request, context, statusCode);
+			this.originalListener.onStopRequest(request, context, statusCode);
 		} catch (e) {}
 	},
-	QueryInterface: function (aIID) {
+	QueryInterface: function(aIID) {
 		if (aIID.equals(Ci.nsIStreamListener) || aIID.equals(Ci.nsISupports)) {
 			return this;
 		} else {
@@ -110,39 +136,36 @@ l.prototype = {
 	}
 }
 
-var po = {
-	observe: function (subject, topic, data) {
+var prefObserver = {
+	observe: function(subject, topic, data) {
 		if (topic != "nsPref:changed") return;
 		switch (data) {
 			case "enabled":
 				if (enabled) {
 					enabled = false;
-					ho.u();
+					httpObserver.unregister();
 				}
 				if (Services.prefs.getBranch(branch).getBoolPref("enabled")) {
-					try {
-						fArray = JSON.parse(filter);
+					if (updateFilter(true)) {
 						enabled = true;
-						ho.r();
-					} catch (e) {
-						Cu.reportError(e);
-						filter = "!" + filter;
-						Services.prefs.getBranch(branch).setCharPref("filter", filter);
+						httpObserver.register();
+					} else {
 						Services.prefs.getBranch(branch).setBoolPref("enabled", false);
 					}
 				}
 				break;
 			case "filter":
-				filter = Services.prefs.getBranch(branch).getCharPref("filter");
-				Services.prefs.getBranch(branch).setBoolPref("enabled", false);
+				if (enabled) {
+					Services.prefs.getBranch(branch).setBoolPref("enabled", false);
+				}
 				break;
 		}
 	},
-	r: function () {
+	register: function() {
 		this.prefBranch = Services.prefs.getBranch(branch);
 		this.prefBranch.addObserver("", this, false);
 	},
-	u: function () {
+	unregister: function() {
 		this.prefBranch.removeObserver("", this);
 	}
 }
@@ -151,34 +174,25 @@ function startup(data, reason) {
 	Cu.import("chrome://modhresponse/content/prefloader.js");
 	PrefLoader.loadDefaultPrefs(data.installPath, "modhresponse.js");
 
-	var p = Services.prefs.getBranch(branch);
-	enabled = p.getBoolPref("enabled");
-	filter = p.getCharPref("filter");
-	
-	try {
-		fArray = JSON.parse(filter);
-		if (enabled) {
-			ho.r();
-		}
-	} catch (e) {
-		Cu.reportError(e);
-		filter = "!" + filter;
-		p.setCharPref("filter", filter);
-		if (enabled) {
+	enabled = Services.prefs.getBranch(branch).getBoolPref("enabled");
+	if (enabled) {
+		if (updateFilter(false)) {
+			httpObserver.register();
+		} else {
 			enabled = false;
-			p.setBoolPref("enabled", enabled);
+			Services.prefs.getBranch(branch).setBoolPref("enabled", enabled);
 		}
 	}
-	po.r();
+	prefObserver.register();
 }
 
 function shutdown(data, reason) {
 	if (reason == APP_SHUTDOWN) return;
 
-	po.u();
-	ho.u();
+	prefObserver.unregister();
+	httpObserver.unregister();
 	Cu.unload("chrome://modhresponse/content/prefloader.js");
 }
 
-function install() { };
-function uninstall() { };
+function install() {};
+function uninstall() {};
