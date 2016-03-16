@@ -14,15 +14,15 @@ var httpObserver = {
 				if (fArray[i][0] == subject.URI.host) {
 					for (var j=1; j < fArray[i].length; j++) {
 						if (typeof fArray[i][j][0] == "string" && fArray[i][j][0] == subject.URI.path || fArray[i][j][0].test(subject.URI.path)) {
-							if (typeof subject.setNewListener !== "function") {
-								subject.QueryInterface(Ci.nsITraceableChannel);
-							}
+							subject.QueryInterface(Ci.nsITraceableChannel);
 							var newListener = new TracingListener();
 							newListener.host = i;
 							newListener.path = j;
 							newListener.originalListener = subject.setNewListener(newListener);
+							break;
 						}
 					}
+					break;
 				}
 			}
 		}
