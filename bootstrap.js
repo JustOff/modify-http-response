@@ -13,7 +13,7 @@ var httpObserver = {
 			for (var i=0; i < fArray.length; i++) {
 				if (fArray[i][0] == subject.URI.host) {
 					for (var j=1; j < fArray[i].length; j++) {
-						if (typeof fArray[i][j][0] == "string" && fArray[i][j][0] == subject.URI.path || fArray[i][j][0].test(subject.URI.path)) {
+						if (typeof fArray[i][j][0] == "string" && fArray[i][j][0] == subject.URI.path || subject.URI.path.search(fArray[i][j][0]) != -1) {
 							subject.QueryInterface(Ci.nsITraceableChannel);
 							var newListener = new TracingListener();
 							newListener.host = i;
