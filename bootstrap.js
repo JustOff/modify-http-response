@@ -7,13 +7,12 @@ var enabled, fArray, branch = "extensions.modhresponse.";
 
 var httpObserver = {
 	observe: function(subject, topic, data) {
-	  try {
 		if (topic == 'http-on-examine-response' || topic == 'http-on-examine-cached-response') {
 			subject.QueryInterface(Ci.nsIHttpChannel);
 			for (var i=0; i < fArray.length; i++) {
 				if (fArray[i][0] == subject.URI.host) {
 					for (var j=1; j < fArray[i].length; j++) {
-						if (typeof fArray[i][j][0] == "string" && fArray[i][j][0] == subject.URI.path || subject.URI.path.search(fArray[i][j][0]) != -1) {
+						if (typeof fArray[i][j][0] == "string" ? fArray[i][j][0] == subject.URI.path : subject.URI.path.search(fArray[i][j][0]) != -1) {
 							subject.QueryInterface(Ci.nsITraceableChannel);
 							var newListener = new TracingListener();
 							newListener.host = i;
@@ -26,7 +25,6 @@ var httpObserver = {
 				}
 			}
 		}
-	  } catch (e) {}
 	},
 	QueryInterface: function(aIID) {
 		if (aIID.equals(Ci.nsIObserver) || aIID.equals(Ci.nsISupports)) {
