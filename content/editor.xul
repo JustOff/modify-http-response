@@ -19,13 +19,13 @@
 </tree>
 
 <groupbox id="editbox" orient="horizontal">
-<textbox id="editsearch" flex="1" oninput="updateCell(this, 0);"/>
-<textbox id="editreplace" flex="1" oninput="updateCell(this, 1);"/>
+<textbox id="editsearch" disabled="true" flex="1" oninput="updateCell(this, 0);"/>
+<textbox id="editreplace" disabled="true" flex="1" oninput="updateCell(this, 1);"/>
 </groupbox>
 
 <groupbox id="apply" orient="horizontal">
-<button label="Save" oncommand="Save();" flex="1"/>
-<button label="Reload" oncommand="Reload();" flex="1"/>
+<button label="Save" oncommand="updateFilters();" flex="1"/>
+<button label="Reload" oncommand="reloadFilters(true);" flex="1"/>
 </groupbox>
 
 <script src="chrome://modhresponse/content/editor.js"/>

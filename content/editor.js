@@ -2,9 +2,7 @@ var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
 var branch = "extensions.modhresponse.";
-var filter = Services.prefs.getBranch(branch).getCharPref("filter");
-var fArray = JSON.parse(filter);
-var treeVis = [];
+var fArray, treeVis = [], isSaved = true;
 //	[ treeLevel, isContainer, isContainerOpen, i, j, k ]
 
 var treeView = {
@@ -136,14 +134,17 @@ var treeView = {
 		switch (treeVis[ci][0]) {
 			case 0:
 				sbox.value = fArray[treeVis[ci][3]][0];
-				rbox.value = ""; rbox.setAttribute("disabled","true");
+				if (sbox.hasAttribute("disabled")) sbox.removeAttribute("disabled");
+				rbox.value = ""; if (!rbox.hasAttribute("disabled")) rbox.setAttribute("disabled","true");
 				break;
 			case 1:
 				sbox.value = fArray[treeVis[ci][3]][treeVis[ci][4]][0];
-				rbox.value = ""; rbox.setAttribute("disabled","true");
+				if (sbox.hasAttribute("disabled")) sbox.removeAttribute("disabled");
+				rbox.value = ""; if (!rbox.hasAttribute("disabled")) rbox.setAttribute("disabled","true");
 				break;
 			case 2:
 				sbox.value = fArray[treeVis[ci][3]][treeVis[ci][4]][1][treeVis[ci][5]];
+				if (sbox.hasAttribute("disabled")) sbox.removeAttribute("disabled");
 				rbox.value = fArray[treeVis[ci][3]][treeVis[ci][4]][1][treeVis[ci][5]+1];
 				if (rbox.hasAttribute("disabled")) rbox.removeAttribute("disabled");
 				break;
@@ -158,18 +159,54 @@ var treeView = {
 };
 
 function init() {
-//	[ treeLevel, isContainer, isContainerOpen, i, j, k ]
+	reloadFilters(false);
+	document.getElementById("elementList").view = treeView;
+	window.onbeforeunload = function (e) {
+		if (isSaved) return;
+		return false;
+	}
+}
+
+function reloadFilters(reload) {
+	if (reload && !Services.prompt.confirm(null, "Reload filters?", "Do you want to reload all filters?")) return;
+	var filter = Services.prefs.getBranch(branch).getCharPref("filter");
+	fArray = JSON.parse(filter);
+	if (reload) {
+		treeView.treeBox.beginUpdateBatch();
+		var oldLength = treeVis.length;
+		treeVis.splice(0, oldLength);
+		treeView.treeBox.rowCountChanged(0, -oldLength);
+	}
 	for (var i=0; i < fArray.length; i++) {
+//		[ treeLevel, isContainer, isContainerOpen, i, j, k ]
 		treeVis.push([0, true, false, i, 0, 0]);
 	}
 //	console.log(treeVis);
+	if (reload) {
+		treeView.treeBox.rowCountChanged(0, fArray.length);
+		treeView.treeBox.endUpdateBatch();
+	}
+	document.getElementById("elementList").focus();
+}
 
-	document.getElementById("elementList").view = treeView;
+function updateFilters() {
+	if (!Services.prompt.confirm(null, "Save filters?", "Do you want to save filters?")) return;
+	try {
+		var filterString = JSON.stringify(fArray);
+//		console.log(filterString);
+		Services.prefs.getBranch(branch).setCharPref("filter", filterString);
+		Services.prefs.getBranch(branch).setBoolPref("enabled", false);
+		Services.prompt.alert(null, "Filters saved!", "Filters successfully saved!\nGo to the options and enable!");
+		isSaved = true;
+	} catch (e) {
+		Services.prompt.alert(null, "Error!", e);
+	}
 }
 
 function deleteRow() {
 	var ci = treeView.selection.currentIndex;
 	if (ci == -1) return;
+	if (!Services.prompt.confirm(null, "Delete row?", "Do you want to delete selected row?")) return;
 	switch (treeVis[ci][0]) {
 		case 0:
 			fArray.splice([treeVis[ci][3]], 1);
@@ -219,6 +256,7 @@ function deleteRow() {
 			break;
 	}
 	document.getElementById("elementList").focus();
+	isSaved = false;
 }
 
 function addRow() {
@@ -261,10 +299,12 @@ function addRow() {
 			break;
 	}
 	document.getElementById("elementList").focus();
+	isSaved = false;
 }
 
 function updateCell(str, col) {
 	var ci = treeView.selection.currentIndex;
+	if (ci == -1) return;
 	switch (treeVis[ci][0]) {
 		case 0:
 			fArray[treeVis[ci][3]][0] = str.value;
@@ -277,4 +317,5 @@ function updateCell(str, col) {
 			break;
 	}
 	treeView.treeBox.invalidateRow(ci);
+	isSaved = false;
 }
