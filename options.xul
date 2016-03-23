@@ -4,4 +4,7 @@
 	<setting type="string" pref="extensions.modhresponse.filter" title="Filters">
 	[["host",["path",["search","resplace"]]]]
 	</setting>
+	<setting type="control" title="Filters Editor">
+    <button label="Launch Editor" oncommand="Services.wm.getMostRecentWindow('navigator:browser').gBrowser.loadOneTab('chrome://modhresponse/content/editor.xul', {inBackground: false, relatedToCurrent: true});"/>
+	</setting>
 </vbox>
