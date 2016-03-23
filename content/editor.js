@@ -185,8 +185,13 @@ function reloadFilters(reload) {
 	if (reload) {
 		treeView.treeBox.rowCountChanged(0, fArray.length);
 		treeView.treeBox.endUpdateBatch();
+		var sbox = document.getElementById("editsearch"); sbox.value = "";
+		var rbox = document.getElementById("editreplace"); rbox.value = "";
+		if (!sbox.hasAttribute("disabled")) sbox.setAttribute("disabled","true");
+		if (!rbox.hasAttribute("disabled")) rbox.setAttribute("disabled","true");
 	}
 	document.getElementById("elementList").focus();
+	isSaved = true;
 }
 
 function updateFilters() {
@@ -257,6 +262,10 @@ function deleteRow() {
 	}
 	document.getElementById("elementList").focus();
 	isSaved = false;
+	var sbox = document.getElementById("editsearch"); sbox.value = "";
+	var rbox = document.getElementById("editreplace"); rbox.value = "";
+	if (!sbox.hasAttribute("disabled")) sbox.setAttribute("disabled","true");
+	if (!rbox.hasAttribute("disabled")) rbox.setAttribute("disabled","true");
 }
 
 function addRow() {

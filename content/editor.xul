@@ -8,6 +8,13 @@
 <groupbox id="modify" orient="horizontal">
 <button label="Add" oncommand="addRow();" flex="1"/>
 <button label="Delete" oncommand="deleteRow();" flex="1"/>
+<button label="Save" oncommand="updateFilters();" flex="1"/>
+<button label="Reload" oncommand="reloadFilters(true);" flex="1"/>
+</groupbox>
+
+<groupbox id="editbox" orient="horizontal">
+<textbox id="editsearch" disabled="true" flex="1" oninput="updateCell(this, 0);"/>
+<textbox id="editreplace" disabled="true" flex="1" oninput="updateCell(this, 1);"/>
 </groupbox>
 
 <tree id="elementList" flex="1" seltype="single" onselect="treeView.selectionChanged();">
@@ -17,16 +24,6 @@
   </treecols>
   <treechildren/>
 </tree>
-
-<groupbox id="editbox" orient="horizontal">
-<textbox id="editsearch" disabled="true" flex="1" oninput="updateCell(this, 0);"/>
-<textbox id="editreplace" disabled="true" flex="1" oninput="updateCell(this, 1);"/>
-</groupbox>
-
-<groupbox id="apply" orient="horizontal">
-<button label="Save" oncommand="updateFilters();" flex="1"/>
-<button label="Reload" oncommand="reloadFilters(true);" flex="1"/>
-</groupbox>
 
 <script src="chrome://modhresponse/content/editor.js"/>
 
