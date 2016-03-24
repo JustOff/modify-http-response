@@ -1,9 +1,7 @@
-var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
-Cu.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 var branch = "extensions.modhresponse.";
 var fArray, treeVis = [], isSaved = true;
-//	[ treeLevel, isContainer, isContainerOpen, i, j, k ]
 
 var treeView = {
 	treeBox : null,
@@ -121,11 +119,6 @@ var treeView = {
 		}
 		this.treeBox.invalidateRow(idx);
 	},
-
-	getImageSrc : function (idx, column) {},
-	getProgressMode : function (idx, column) {},
-	getCellValue : function (idx, column) {},
-	cycleHeader : function (col, elem) {},
 	selectionChanged : function () {
 		var ci = this.selection.currentIndex;
 		if (ci == -1) return;
@@ -150,6 +143,10 @@ var treeView = {
 				break;
 		}
 	},
+	getImageSrc : function (idx, column) {},
+	getProgressMode : function (idx, column) {},
+	getCellValue : function (idx, column) {},
+	cycleHeader : function (col, elem) {},
 	cycleCell : function (idx, column) {},
 	performAction : function (action) {},
 	performActionOnCell : function (action, index, column) {},
@@ -170,7 +167,12 @@ function init() {
 function reloadFilters(reload) {
 	if (reload && !Services.prompt.confirm(null, "Reload filters?", "Do you want to reload all filters?")) return;
 	var filter = Services.prefs.getBranch(branch).getCharPref("filter");
-	fArray = JSON.parse(filter);
+	try {
+		fArray = JSON.parse(filter);
+	} catch(e) {
+		fArray = [];
+		if (filter != "") Services.prompt.alert(null, "Error loading filters!", e);
+	}
 	if (reload) {
 		treeView.treeBox.beginUpdateBatch();
 		var oldLength = treeVis.length;
@@ -178,10 +180,9 @@ function reloadFilters(reload) {
 		treeView.treeBox.rowCountChanged(0, -oldLength);
 	}
 	for (var i=0; i < fArray.length; i++) {
-//		[ treeLevel, isContainer, isContainerOpen, i, j, k ]
+//			[ treeLevel, isContainer, isContainerOpen, i, j, k ]
 		treeVis.push([0, true, false, i, 0, 0]);
 	}
-//	console.log(treeVis);
 	if (reload) {
 		treeView.treeBox.rowCountChanged(0, fArray.length);
 		treeView.treeBox.endUpdateBatch();
@@ -198,11 +199,13 @@ function updateFilters() {
 	if (!Services.prompt.confirm(null, "Save filters?", "Do you want to save filters?")) return;
 	try {
 		var filterString = JSON.stringify(fArray);
-//		console.log(filterString);
+		if (filterString == "[]") filterString = "";
 		Services.prefs.getBranch(branch).setCharPref("filter", filterString);
 		Services.prefs.getBranch(branch).setBoolPref("enabled", false);
-		Services.prompt.alert(null, "Filters saved!", "Filters successfully saved!\nGo to the options and enable!");
 		isSaved = true;
+		var check = {value: false};
+		Services.prompt.alertCheck(null, "Filters successfully saved!", "Filters saved, don't forget to enable!", "Close Filters Editor", check);
+		if (check.value) window.close();
 	} catch (e) {
 		Services.prompt.alert(null, "Error!", e);
 	}

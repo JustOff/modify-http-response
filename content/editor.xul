@@ -3,26 +3,29 @@
 
 <window onload="init();"
 		title="Filters Editor"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+		xmlns:html="http://www.w3.org/1999/xhtml"
+		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+		
+<html:link rel="icon" href="chrome://modhresponse/content/icon.png" style="display:none"/>		
 
 <groupbox id="modify" orient="horizontal">
-<button label="Add" oncommand="addRow();" flex="1"/>
-<button label="Delete" oncommand="deleteRow();" flex="1"/>
-<button label="Save" oncommand="updateFilters();" flex="1"/>
-<button label="Reload" oncommand="reloadFilters(true);" flex="1"/>
+	<button label="Add" oncommand="addRow();" flex="1"/>
+	<button label="Delete" oncommand="deleteRow();" flex="1"/>
+	<button label="Save" oncommand="updateFilters();" flex="1"/>
+	<button label="Reload" oncommand="reloadFilters(true);" flex="1"/>
 </groupbox>
 
 <groupbox id="editbox" orient="horizontal">
-<textbox id="editsearch" disabled="true" flex="1" oninput="updateCell(this, 0);"/>
-<textbox id="editreplace" disabled="true" flex="1" oninput="updateCell(this, 1);"/>
+	<textbox id="editsearch" disabled="true" flex="1" oninput="updateCell(this, 0);"/>
+	<textbox id="editreplace" disabled="true" flex="1" oninput="updateCell(this, 1);"/>
 </groupbox>
 
 <tree id="elementList" flex="1" seltype="single" onselect="treeView.selectionChanged();">
-  <treecols>
-    <treecol id="search" label="Search" primary="true" flex="1"/>
-    <treecol id="replace" label="Replace" flex="1"/>
-  </treecols>
-  <treechildren/>
+	<treecols>
+		<treecol id="search" label="Search" primary="true" flex="1"/>
+		<treecol id="replace" label="Replace" flex="1"/>
+	</treecols>
+	<treechildren/>
 </tree>
 
 <script src="chrome://modhresponse/content/editor.js"/>

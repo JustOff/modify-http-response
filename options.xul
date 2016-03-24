@@ -5,6 +5,6 @@
 	[["host",["path",["search","resplace"]]]]
 	</setting>
 	<setting type="control" title="Filters Editor">
-    <button label="Launch Editor" oncommand="Services.wm.getMostRecentWindow('navigator:browser').gBrowser.loadOneTab('chrome://modhresponse/content/editor.xul', {inBackground: false, relatedToCurrent: true});"/>
+    <button label="Launch Editor" oncommand="var mrw=Services.wm.getMostRecentWindow('navigator:browser');if(typeof mrw.gBrowser=='undefined')mrw.BrowserApp.addTab('chrome://modhresponse/content/editor.xul');else mrw.gBrowser.loadOneTab('chrome://modhresponse/content/editor.xul',{inBackground:false,relatedToCurrent:true});"/>
 	</setting>
 </vbox>
