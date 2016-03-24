@@ -20,7 +20,7 @@
 	<textbox id="editreplace" disabled="true" flex="1" oninput="updateCell(this, 1);"/>
 </groupbox>
 
-<tree id="elementList" flex="1" seltype="single" onselect="treeView.selectionChanged();">
+<tree id="elementList" flex="1" seltype="single" hidecolumnpicker="true" onselect="treeView.selectionChanged();">
 	<treecols>
 		<treecol id="search" label="Search" primary="true" flex="1"/>
 		<treecol id="replace" label="Replace" flex="1"/>
