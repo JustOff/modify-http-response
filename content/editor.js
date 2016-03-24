@@ -206,8 +206,14 @@ function updateFilters() {
 		var check = {value: true};
 		Services.prompt.alertCheck(null, "Filters successfully saved!", "Filters saved, don't forget to enable!", "Close Filters Editor and Go to Options", check);
 		if (check.value) {
-			window.close();
-			Services.wm.getMostRecentWindow("navigator:browser").BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
+			var win = window;
+			var mrw = Services.wm.getMostRecentWindow("navigator:browser");
+			if (typeof mrw.BrowserOpenAddonsMgr != "undefined") {
+				mrw.BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
+			} else {
+				mrw.BrowserApp.selectOrAddTab("about:addons");
+			}
+			win.close();
 		}
 	} catch (e) {
 		Services.prompt.alert(null, "Error!", e);
