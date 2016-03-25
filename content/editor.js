@@ -165,7 +165,7 @@ function init() {
 }
 
 function reloadFilters(reload) {
-	if (reload && !Services.prompt.confirm(null, "Reload filters?", "Do you want to reload all filters?")) return;
+	if (reload && !isSaved && !Services.prompt.confirm(null, "Reload filters?", "Do you want to reload all filters?\nWarning! Unsaved data will be lost!")) return;
 	var filter = Services.prefs.getBranch(branch).getCharPref("filter");
 	try {
 		fArray = JSON.parse(filter);
@@ -205,25 +205,27 @@ function updateFilters() {
 		isSaved = true;
 		var check = {value: true};
 		Services.prompt.alertCheck(null, "Filters successfully saved!", "Filters saved, don't forget to enable!", "Close Filters Editor and Go to Options", check);
-		if (check.value) {
-			var win = window;
-			var mrw = Services.wm.getMostRecentWindow("navigator:browser");
-			if (typeof mrw.BrowserOpenAddonsMgr != "undefined") {
-				mrw.BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
-			} else {
-				mrw.BrowserApp.selectOrAddTab("about:addons");
-			}
-			win.close();
-		}
+		if (check.value) closeEditor();
 	} catch (e) {
 		Services.prompt.alert(null, "Error!", e);
 	}
 }
 
+function closeEditor() {
+	var win = window;
+	var mrw = Services.wm.getMostRecentWindow("navigator:browser");
+	if (typeof mrw.BrowserOpenAddonsMgr != "undefined") {
+		mrw.BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
+	} else {
+		mrw.BrowserApp.selectOrAddTab("about:addons");
+	}
+	win.close();
+}
+
 function deleteRow() {
 	var ci = treeView.selection.currentIndex;
 	if (ci == -1) return;
-	if (!Services.prompt.confirm(null, "Delete row?", "Do you want to delete selected row?")) return;
+	if (!Services.prompt.confirm(null, "Delete rule?", "Do you want to delete selected rule?")) return;
 	switch (treeVis[ci][0]) {
 		case 0:
 			fArray.splice([treeVis[ci][3]], 1);

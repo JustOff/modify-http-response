@@ -9,10 +9,11 @@
 <html:link rel="icon" href="chrome://modhresponse/content/icon.png" style="display:none"/>		
 
 <groupbox id="modify" orient="horizontal">
-	<button label="Add" oncommand="addRow();" flex="1"/>
-	<button label="Delete" oncommand="deleteRow();" flex="1"/>
-	<button label="Save" oncommand="updateFilters();" flex="1"/>
-	<button label="Reload" oncommand="reloadFilters(true);" flex="1"/>
+	<button label="Add" tooltiptext="Add Rule" oncommand="addRow();" flex="1"/>
+	<button label="Delete" tooltiptext="Delete Rule" oncommand="deleteRow();" flex="1"/>
+	<button label="Save" tooltiptext="Save Filters" oncommand="updateFilters();" flex="1"/>
+	<button label="Reload" tooltiptext="Reload Filters" oncommand="reloadFilters(true);" flex="1"/>
+	<button label="Close" tooltiptext="Close Editor" oncommand="closeEditor();" flex="1"/>
 </groupbox>
 
 <groupbox id="editbox" orient="horizontal">
