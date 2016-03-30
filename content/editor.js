@@ -218,6 +218,8 @@ function closeEditor() {
 		mrw.BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
 	} else if (typeof mrw.BrowserApp != "undefined") {
 		mrw.BrowserApp.selectOrAddTab("about:addons");
+	} else if (typeof mrw.toEM != "undefined") {
+		mrw.toEM("addons://detail/modhresponse@Off.JustOff/preferences");
 	}
 	win.close();
 }

@@ -301,7 +301,13 @@ var buttonInject = function(w) {
 		},
 		run : function(e) {
 			if (e.ctrlKey || e.metaKey) {
-				Services.wm.getMostRecentWindow("navigator:browser").BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
+				var mrw = Services.wm.getMostRecentWindow("navigator:browser");
+//				mrw.gBrowser.loadOneTab("chrome://modhresponse/content/editor.xul",{inBackground:false});
+				if (typeof mrw.BrowserOpenAddonsMgr != "undefined") {
+					mrw.BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
+				} else if (typeof mrw.toEM != "undefined") {
+					mrw.toEM("addons://detail/modhresponse@Off.JustOff/preferences");
+				}
 			} else {
 				Services.prefs.getBranch(branch).setBoolPref("enabled", !enabled);
 			}
