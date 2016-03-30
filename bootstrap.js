@@ -61,6 +61,9 @@ function parseReg(src) {
 function updateFilter(report) {
 	var filter = Services.prefs.getBranch(branch).getCharPref("filter");
 	try {
+		if (filter.trim() == "") {
+			throw "No filters defined!";
+		}
 		fArray = JSON.parse(filter);
 		for (var i=0; i < fArray.length; i++) {
 			fArray[i][0] = parseReg(fArray[i][0]);
