@@ -6,7 +6,7 @@
 		xmlns:html="http://www.w3.org/1999/xhtml"
 		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 		
-<html:link rel="icon" href="chrome://modhresponse/content/editor.png" style="display:none"/>		
+<html:link rel="icon" href="chrome://modhresponse/skin/editor.png" style="display:none"/>		
 
 <groupbox id="modify" orient="horizontal">
 	<button label="Add" tooltiptext="Add Rule" oncommand="addRow();" flex="1"/>
