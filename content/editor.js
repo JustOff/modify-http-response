@@ -216,7 +216,7 @@ function closeEditor() {
 	var mrw = Services.wm.getMostRecentWindow("navigator:browser");
 	if (typeof mrw.BrowserOpenAddonsMgr != "undefined") {
 		mrw.BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
-	} else {
+	} else if (typeof mrw.BrowserApp != "undefined") {
 		mrw.BrowserApp.selectOrAddTab("about:addons");
 	}
 	win.close();
