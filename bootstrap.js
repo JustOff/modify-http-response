@@ -305,7 +305,6 @@ var buttonInject = function(w) {
 		run : function(e) {
 			if (e.ctrlKey || e.metaKey) {
 				var mrw = Services.wm.getMostRecentWindow("navigator:browser");
-//				mrw.gBrowser.loadOneTab("chrome://modhresponse/content/editor.xul",{inBackground:false});
 				if (typeof mrw.BrowserOpenAddonsMgr != "undefined") {
 					mrw.BrowserOpenAddonsMgr("addons://detail/modhresponse@Off.JustOff/preferences");
 				} else if (typeof mrw.toEM != "undefined") {
