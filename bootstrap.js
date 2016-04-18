@@ -23,7 +23,7 @@ var httpObserver = {
 							break;
 						}
 					}
-					break;
+					if (typeof fArray[i][0] == "string") break;
 				}
 			}
 		}
