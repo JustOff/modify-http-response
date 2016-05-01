@@ -120,7 +120,9 @@ TracingListener.prototype = {
 		var storageStream = CCIN("@mozilla.org/storagestream;1", "nsIStorageStream");
 		storageStream.init(8192, data.length, null);
 		var os = storageStream.getOutputStream(0);
-		os.write(data, data.length);
+		if (data.length > 0) {
+			os.write(data, data.length);
+		}
 		os.close();
 
 		try {
