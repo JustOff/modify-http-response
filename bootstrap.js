@@ -19,6 +19,7 @@ var httpObserver = {
 							var newListener = new TracingListener();
 							newListener.host = i;
 							newListener.path = j;
+							newListener.custom = Services.prefs.getBranch(branch).getCharPref("custom");
 							newListener.originalListener = subject.setNewListener(newListener);
 							break;
 						}
@@ -113,7 +114,7 @@ TracingListener.prototype = {
 		try {
 			var re = fArray[this.host][this.path][1];
 			for (var i=0; i < re.length; i++) {
-				data = data.replace(re[i],re[++i]);
+				data = data.replace(re[i],re[++i].replace("$MHR$", this.custom));
 			}
 		} catch (e) {}
 		
