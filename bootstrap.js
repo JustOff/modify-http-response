@@ -3,7 +3,7 @@
 var {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 
-var enabled, fArray, desktop, gWindowListener, branch = "extensions.modhresponse.";
+var enabled, fArray, desktop, custom, gWindowListener, branch = "extensions.modhresponse.";
 var styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
 var styleSheetURI = Services.io.newURI("chrome://modhresponse/skin/modhresponse.css", null, null);
 
@@ -19,7 +19,6 @@ var httpObserver = {
 							var newListener = new TracingListener();
 							newListener.host = i;
 							newListener.path = j;
-							newListener.custom = Services.prefs.getBranch(branch).getCharPref("custom");
 							newListener.originalListener = subject.setNewListener(newListener);
 							break;
 						}
@@ -114,7 +113,7 @@ TracingListener.prototype = {
 		try {
 			var re = fArray[this.host][this.path][1];
 			for (var i=0; i < re.length; i++) {
-				data = data.replace(re[i],re[++i].replace("$MHR$", this.custom));
+				data = data.replace(re[i],re[++i].replace("$MHR$", custom));
 			}
 		} catch (e) {}
 		
@@ -166,6 +165,10 @@ var prefObserver = {
 					Services.prefs.getBranch(branch).setBoolPref("enabled", false);
 				}
 				break;
+			case "custom":
+				custom = Services.prefs.getBranch(branch).getCharPref("custom");
+				break;
+
 		}
 	},
 	register: function() {
@@ -375,6 +378,7 @@ function startup(data, reason) {
 		}
 	}
 	prefObserver.register();
+	custom = Services.prefs.getBranch(branch).getCharPref("custom");
 
 	if (desktop) {
 		var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
