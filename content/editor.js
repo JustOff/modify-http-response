@@ -203,9 +203,14 @@ function updateFilters() {
 		Services.prefs.getBranch(branch).setCharPref("filter", filterString);
 		Services.prefs.getBranch(branch).setBoolPref("enabled", false);
 		isSaved = true;
+		if (Services.prompt.confirm(null, "Enable filters?", "Enable saved filters now?")) {
+			Services.prefs.getBranch(branch).setBoolPref("enabled", true);
+		}
+/*
 		var check = {value: true};
 		Services.prompt.alertCheck(null, "Filters successfully saved!", "Filters saved, don't forget to enable!", "Close Filters Editor and Go to Options", check);
 		if (check.value) closeEditor();
+*/
 	} catch (e) {
 		Services.prompt.alert(null, "Error!", e);
 	}
