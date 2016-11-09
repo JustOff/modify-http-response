@@ -231,12 +231,14 @@ var button = {
 		return b;
 	},
 	onCustomize : function(e) {
-		var ucs = Services.prefs.getCharPref("browser.uiCustomization.state");
-		if ((/\"nav\-bar\"\:\[.*?\"modhresponse\-button\".*?\]/).test(ucs)) {
-			Services.prefs.getBranch(branch).setCharPref("toolbarId", "nav-bar");
-		} else {
-			button.setPrefs(null, null);
-		}
+		try {
+			var ucs = Services.prefs.getCharPref("browser.uiCustomization.state");
+			if ((/\"nav\-bar\"\:\[.*?\"modhresponse\-button\".*?\]/).test(ucs)) {
+				Services.prefs.getBranch(branch).setCharPref("toolbarId", "nav-bar");
+			} else {
+				button.setPrefs(null, null);
+			}
+		} catch(e) {}
 	},
 	afterCustomize : function(e) {
 		var toolbox = e.target,
