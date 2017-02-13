@@ -226,7 +226,9 @@ var button = {
 				}
 				toolbar.insertItem(this.meta.id, nextItem);
 			}
-			try { w.setToolbarVisibility(toolbar, true); } catch(e) {}
+			if (toolbar.getAttribute("collapsed") == "true") {
+				try { w.setToolbarVisibility(toolbar, true); } catch(e) {}
+			}
 		}
 		return b;
 	},
