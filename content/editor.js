@@ -203,14 +203,12 @@ function updateFilters() {
 		Services.prefs.getBranch(branch).setCharPref("filter", filterString);
 		Services.prefs.getBranch(branch).setBoolPref("enabled", false);
 		isSaved = true;
-		if (Services.prompt.confirm(null, "Enable filters?", "Enable saved filters now?")) {
+		var check = {value: Services.prefs.getBoolPref("extensions.modhresponse.closeEditor")};
+		if (Services.prompt.confirmCheck(null, "Enable filters?", "Enable saved filters now?", "Close Editor", check)) {
 			Services.prefs.getBranch(branch).setBoolPref("enabled", true);
+			if (check.value) closeEditor();
 		}
-/*
-		var check = {value: true};
-		Services.prompt.alertCheck(null, "Filters successfully saved!", "Filters saved, don't forget to enable!", "Close Filters Editor and Go to Options", check);
-		if (check.value) closeEditor();
-*/
+		Services.prefs.setBoolPref("extensions.modhresponse.closeEditor", check.value);
 	} catch (e) {
 		Services.prompt.alert(null, "Error!", e);
 	}
