@@ -416,7 +416,9 @@ function shutdown(data, reason) {
 	}
 
 	prefObserver.unregister();
-	httpObserver.unregister();
+	if (enabled) {
+		httpObserver.unregister();
+	}
 
 	if (desktop && styleSheetService.sheetRegistered(styleSheetURI, styleSheetService.USER_SHEET)) {
 		styleSheetService.unregisterSheet(styleSheetURI, styleSheetService.USER_SHEET);
