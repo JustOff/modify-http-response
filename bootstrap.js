@@ -210,9 +210,17 @@ var button = {
 		toolbox.palette.appendChild(b);
 
 		var {toolbarId, nextItemId} = this.getPrefs(),
-			toolbar = toolbarId && $(doc, toolbarId),
-			nextItem = toolbar && $(doc, nextItemId);
+			toolbar = toolbarId && $(doc, toolbarId);
 		if (toolbar) {
+			// Handle special items with dynamic ids
+			var match = /^(separator|spacer|spring)\[(\d+)\]$/.exec(nextItemId);
+			if (match !== null) {
+				var dynItems = toolbar.querySelectorAll("toolbar" + match[1]);
+				if (match[2] < dynItems.length) {
+					nextItemId = dynItems[match[2]].id;
+				}
+			}
+			var nextItem = nextItemId && $(doc, nextItemId);
 			if (nextItem && nextItem.parentNode && nextItem.parentNode.id.replace("-customization-target", "") == toolbarId) {
 				toolbar.insertItem(this.meta.id, nextItem);
 			} else {
@@ -245,13 +253,24 @@ var button = {
 	afterCustomize : function(e) {
 		var toolbox = e.target,
 			b = $(toolbox.parentNode, button.meta.id),
-			toolbarId, nextItemId;
+			toolbarId, nextItem, nextItemId;
 		if (b) {
-			var parent = b.parentNode,
-				nextItem = b.nextSibling;
+			var parent = b.parentNode;
+			nextItem = b.nextSibling;
 			if (parent && (parent.localName == "toolbar" || parent.classList.contains("customization-target"))) {
 				toolbarId = parent.id;
 				nextItemId = nextItem && nextItem.id;
+			}
+		}
+		// Handle special items with dynamic ids
+		var match = /^(separator|spacer|spring)\d+$/.exec(nextItemId);
+		if (match !== null) {
+			var dynItems = nextItem.parentNode.querySelectorAll("toolbar" + match[1]);
+			for (var i = 0; i < dynItems.length; i++) {
+				if (dynItems[i].id == nextItemId) {
+					nextItemId = match[1] + "[" + i + "]";
+					break;
+				}
 			}
 		}
 		button.setPrefs(toolbarId, nextItemId);
