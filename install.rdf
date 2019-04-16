@@ -2,7 +2,7 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
 	<em:id>modhresponse@Off.JustOff</em:id>
-	<em:version>1.3.5</em:version>
+	<em:version>1.3.6</em:version>
 	<em:type>2</em:type>
 	<em:bootstrap>true</em:bootstrap>
 	<em:name>Modify HTTP Response</em:name>
@@ -34,7 +34,7 @@
 	  <em:Description>
 		<em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
 		<em:minVersion>2.24</em:minVersion>
-		<em:maxVersion>*</em:maxVersion>
+		<em:maxVersion>2.*</em:maxVersion>
 	  </em:Description>
 	</em:targetApplication>
   </Description>
